@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tra Cứu Công Dân</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f2f5; }
+        .lookup-container { max-width: 900px; margin: 30px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .search-bar { display: flex; gap: 10px; margin-bottom: 30px; }
+        .search-bar input { flex-grow: 1; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; }
+        .search-bar button { padding: 12px 20px; font-size: 16px; background-color: #1877f2; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .results-container { display: none; }
+        .profile-header { display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #ddd; padding-bottom: 20px; }
+        .profile-header img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; }
+        .profile-header h2 { margin: 0; }
+        .profile-header p { margin: 5px 0 0; color: #666; }
+        .tabs { display: flex; border-bottom: 1px solid #ccc; margin-top: 20px; }
+        .tab-link { padding: 10px 20px; cursor: pointer; border: none; background: none; font-size: 16px; }
+        .tab-link.active { border-bottom: 3px solid #1877f2; font-weight: bold; }
+        .tab-content { padding: 20px; border: 1px solid #ddd; border-top: none; }
+    </style>
+</head>
+<body>
+
+    <div class="lookup-container">
+        <h2>TRA CỨU THÔNG TIN CÔNG DÂN</h2>
+        <div class="search-bar">
+            <input type="text" id="cccd-input" placeholder="Nhập 12 số CCCD của công dân...">
+            <button id="search-btn">Tra cứu</button>
+        </div>
+
+        <div id="results-container" class="results-container">
+            <div class="profile-header">
+                <img id="profile-avatar" src="frontend/image/avata/ktk13082006.jpg" alt="Ảnh đại diện">
+                <div>
+                    <h2 id="profile-name">Họ và Tên</h2>
+                    <p>CCCD: <span id="profile-cccd"></span></p>
+                    <p>Ngày sinh: <span id="profile-dob"></span></p>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-link active" data-tab="basic">Thông Tin Cơ Bản</button>
+                <button class="tab-link" data-tab="address">Cư Trú & Hộ Khẩu</button>
+                <button class="tab-link" data-tab="other">Thông Tin Khác</button>
+            </div>
+
+            <div id="tab-content-basic" class="tab-content">
+                <p><strong>Dân tộc:</strong> <span id="profile-dantoc"></span></p>
+                <p><strong>Quê quán:</strong> <span id="profile-quequan"></span></p>
+                <p><strong>Nơi thường trú:</strong> <span id="profile-noithuongtru"></span></p>
+            </div>
+
+            <div id="tab-content-address" class="tab-content" style="display: none;">
+                <p>Thông tin cư trú và hộ khẩu sẽ được bổ sung sau.</p>
+            </div>
+
+            <div id="tab-content-other" class="tab-content" style="display: none;">
+                <p>Thông tin khác sẽ được bổ sung sau.</p>
+            </div>
+        </div>
+
+        <div id="not-found" style="display: none; text-align: center; padding: 20px;">
+            <p>Không tìm thấy công dân với số CCCD đã nhập.</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('search-btn').addEventListener('click', async function () {
+            const cccd = document.getElementById('cccd-input').value.trim();
+
+            if (cccd.length !== 12) {
+                alert('Vui lòng nhập đúng 12 số CCCD.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/congdan/${cccd}`);
+                const result = await response.json();
+
+                if (response.ok && result.data) {
+                    document.getElementById('results-container').style.display = 'block';
+                    document.getElementById('not-found').style.display = 'none';
+
+                    const citizen = result.data;
+
+                    document.getElementById('profile-avatar').src = citizen.avatar || 'placeholder.jpg';
+                    document.getElementById('profile-name').innerText = citizen.hoVaTen;
+                    document.getElementById('profile-cccd').innerText = citizen.id_cccd;
+                    document.getElementById('profile-dob').innerText = citizen.dob;
+
+                    document.getElementById('profile-dantoc').innerText = citizen.danToc;
+                    document.getElementById('profile-quequan').innerText = citizen.queQuan;
+                    document.getElementById('profile-noithuongtru').innerText = citizen.noiThuongTru;
+
+                } else {
+                    document.getElementById('results-container').style.display = 'none';
+                    document.getElementById('not-found').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Lỗi khi tra cứu:', error);
+                alert('Không thể kết nối đến máy chủ!');
+            }
+        });
+
+        // Xử lý chuyển tab
+        const tabs = document.querySelectorAll('.tab-link');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                const tabContents = document.querySelectorAll('.tab-content');
+                tabContents.forEach(content => content.style.display = 'none');
+
+                const selectedTab = tab.getAttribute('data-tab');
+                document.getElementById(`tab-content-${selectedTab}`).style.display = 'block';
+            });
+        });
+    </script>
+
+</body>
+</html>
