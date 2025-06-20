@@ -87,15 +87,18 @@ CREATE TABLE users (
     CHECK (id_user REGEXP '^[0-9]{5}$'),
     FOREIGN KEY (id_cccd) REFERENCES congdan(id_cccd)
 );
-
--- 8. Lịch sử đăng nhập
-CREATE TABLE login_history (
-    id_history CHAR(5) PRIMARY KEY,
-    id_user CHAR(5),
-    login_time DATETIME,
-    CHECK (id_history REGEXP '^[0-9]{5}$'),
-    FOREIGN KEY (id_user) REFERENCES users(id_user)
-);
+-- 8.Nhân khẩu
+    CREATE TABLE `nhankhau` (
+  `id_hoKhau` char(9) NOT NULL,
+  `id_cccd` char(12) NOT NULL,
+  `mqhChuHo` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id_hoKhau`,`id_cccd`),
+  UNIQUE KEY `id_cccd_UNIQUE` (`id_cccd`),
+  CONSTRAINT `nhankhau_ibfk_1` FOREIGN KEY (`id_hoKhau`) REFERENCES `hokhau` (`id_hoKhau`),
+  CONSTRAINT `nhankhau_ibfk_2` FOREIGN KEY (`id_cccd`) REFERENCES `congdan` (`id_cccd`),
+  CONSTRAINT `chk_nk_id_cccd` CHECK (regexp_like(`id_cccd`,_utf8mb4'^[0-9]{12}$')),
+  CONSTRAINT `chk_nk_id_hoKhau` CHECK (regexp_like(`id_hoKhau`,_utf8mb4'^[0-9]{9}$'))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 -- 9. Phiếu đăng ký sự kiện
 CREATE TABLE phieu_dangky (
@@ -145,15 +148,4 @@ CREATE TABLE admin_acc (
     FOREIGN KEY (id_dvql) REFERENCES dvql(id_dvql)
 );
 
--- 13. Tin tức
-CREATE TABLE news (
-    id_new CHAR(5) PRIMARY KEY,
-    id_admin CHAR(5),
-    name VARCHAR(225),
-    image TEXT,
-    noiDung TEXT,
-    created_at DATETIME,
-    update_at DATETIME,
-    CHECK (id_new REGEXP '^[0-9]{5}$'),
-    FOREIGN KEY (id_admin) REFERENCES admin_acc(id_admin)
-);*/
+;*/
