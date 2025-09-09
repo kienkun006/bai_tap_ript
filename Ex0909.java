@@ -21,6 +21,9 @@ public class Ex0909 {
             System.out.println("Nhan ma sinh vien:");
                     id_Stu = sc.nextLine();
             System.out.println("Nhan Ho Ten:");
+                    name=sc.nextLine();
+            System.out.println("Nhan tuoi:");
+                    age=sc.nextLine();
         }
         }
 
